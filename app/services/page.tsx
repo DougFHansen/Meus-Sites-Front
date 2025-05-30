@@ -172,7 +172,7 @@ export default function ServicesPage() {
       <Header />
       <section className="pt-32 sm:pt-24 pb-12 px-4 bg-[#19325b] min-h-screen">
           <div className="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-lg">
-              <h2 className="text-center text-3xl font-semibold text-gray-800 mb-2">Monte Seu Plano de Serviços de TI</h2>
+              <h2 className="text-center text-[2rem] font-semibold text-gray-800 mb-2">Monte Seu Plano de Serviços de TI</h2>
               <p className="text-center text-sm text-gray-600 mb-8">Selecione os serviços desejados e escolha como prefere o atendimento.</p>
 
               <form onSubmit={handleSubmitRequest}>

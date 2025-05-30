@@ -36,7 +36,7 @@ function ReviewCard({ review }: ReviewCardProps) {
         {/* Using a simple img tag for now, consider next/image for optimization */}
         <img src={review.avatar} alt={review.name} className="w-20 h-20 rounded-full object-cover mr-5 border-3 border-blue-600" />
         <div className="reviewer-info">
-          <h4 className="text-xl font-semibold text-gray-800 m-0 mb-1">{review.name}</h4>
+          <h4 className="text-[2rem] font-semibold text-gray-800 m-0 mb-1">{review.name}</h4>
           <div className="review-stars">
             {renderStars(review.rating)}
           </div>
@@ -117,8 +117,8 @@ export default function ReviewsSlider() {
 
   return (
     <section className="py-16 px-4 text-center" id="reviews">
-      <h2 className="text-4xl text-gray-800 mb-12">
-        O que nossos <span className="text-blue-600">Clientes Dizem</span>
+      <h2 className="text-[2rem] text-[#FF4B6B] mb-12">
+        O QUE NOSSOS <span className="text-white">CLIENTES DIZEM</span>
       </h2>
       <div className="max-w-2xl mx-auto relative overflow-hidden">
         <div className="flex transition-transform duration-500 ease-in-out will-change-transform backface-hidden" ref={trackRef}>
@@ -128,28 +128,44 @@ export default function ReviewsSlider() {
         </div>
 
         {/* Slider Navigation Buttons */}
-        <button className="absolute top-1/2 transform -translate-y-1/2 bg-white bg-opacity-90 border-none rounded-full w-12 h-12 cursor-pointer flex items-center justify-center shadow-lg transition-all duration-300 ease-in-out z-10 left-0 hover:bg-blue-600 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white" aria-label="Review Anterior" onClick={handlePrev}>
+        <button className="absolute top-1/2 transform -translate-y-1/2 bg-white bg-opacity-90 border-none rounded-full w-12 h-12 cursor-pointer flex items-center justify-center shadow-lg transition-all duration-300 ease-in-out z-10 left-0 hover:bg-gradient-to-r hover:from-[#FF4B6B] hover:via-[#8B31FF] hover:to-[#31A8FF] hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white group" aria-label="Review Anterior" onClick={handlePrev}>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
-                <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" className="fill-blue-600 group-hover:fill-white"/>
-            </svg>
-        </button>
-        <button className="absolute top-1/2 transform -translate-y-1/2 bg-white bg-opacity-90 border-none rounded-full w-12 h-12 cursor-pointer flex items-center justify-center shadow-lg transition-all duration-300 ease-in-out z-10 right-0 hover:bg-blue-600 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white" aria-label="Próximo Review" onClick={handleNext}>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
-                <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" className="fill-blue-600 group-hover:fill-white"/>
+                <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" className="fill-[#8B31FF] group-hover:fill-white"/>
             </svg>
         </button>
 
-        {/* Slider Dots */}
-        <div className="text-center mt-8">
+        <button className="absolute top-1/2 transform -translate-y-1/2 bg-white bg-opacity-90 border-none rounded-full w-12 h-12 cursor-pointer flex items-center justify-center shadow-lg transition-all duration-300 ease-in-out z-10 right-0 hover:bg-gradient-to-r hover:from-[#FF4B6B] hover:via-[#8B31FF] hover:to-[#31A8FF] hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white group" aria-label="Próximo Review" onClick={handleNext}>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                <path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z" className="fill-[#8B31FF] group-hover:fill-white"/>
+            </svg>
+        </button>
+
+        {/* Dots Navigation */}
+        <div className="flex justify-center mt-6 gap-2">
           {slides.map((_, index) => (
             <button
               key={index}
-              className={`inline-block w-3 h-3 bg-gray-400 rounded-full mx-1 cursor-pointer transition-all duration-300 ease-in-out ${index === currentIndex ? 'bg-blue-600 scale-125' : ''}`}
-              aria-label={`Ir para review ${index + 1}`}
               onClick={() => moveToSlide(index)}
+              className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                currentIndex === index
+                  ? 'bg-gradient-to-r from-[#FF4B6B] via-[#8B31FF] to-[#31A8FF] w-6'
+                  : 'bg-gray-300 hover:bg-gray-400'
+              }`}
+              aria-label={`Ir para o slide ${index + 1}`}
             />
           ))}
         </div>
+      </div>
+
+      {/* Add Review Button */}
+      <div className="mt-12">
+        <a
+          href="/reviews"
+          className="inline-flex items-center px-8 py-3 rounded-lg bg-gradient-to-r from-[#FF4B6B] via-[#8B31FF] to-[#31A8FF] text-white font-semibold hover:shadow-[0_0_20px_rgba(139,49,255,0.3)] transition-all duration-300 ease-out hover:scale-105"
+        >
+          <i className="fas fa-star mr-2"></i>
+          Avaliar Serviços
+        </a>
       </div>
     </section>
   );

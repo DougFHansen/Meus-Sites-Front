@@ -4,21 +4,75 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  .perspective {
+    perspective: 1000px;
+  }
+  
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+  
+  .rotate-y-8 {
+    transform: rotateY(-8deg);
+  }
+  
+  .translate-z-50 {
+    transform: translateZ(-50px);
+  }
+  
+  .translate-z-70 {
+    transform: translateZ(-70px);
+  }
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --foreground-rgb: 255, 255, 255;
+  --background-start-rgb: 23, 19, 19;
+  --background-end-rgb: 23, 19, 19;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgb(var(--background-end-rgb))
+  )
+  rgb(var(--background-start-rgb));
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: "Roboto", sans-serif;
   --font-mono: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
-    --foreground: #ededed;
+    --foreground: #19325b;
   }
+}
+
+/* Configurações globais de fonte */
+body {
+  font-family: "Roboto", sans-serif;
+}
+
+/* Configurações para títulos */
+h1, h2, h3, h4, h5, h6,
+[class*="title"],
+[class*="heading"] {
+  font-family: "Roboto", sans-serif;
+}
+
+h1, 
+.title, 
+.section-title,
+[class*="title-main"],
+[class*="heading-main"] {
+  font-size: 4rem !important;
+  line-height: 1.2;
 }

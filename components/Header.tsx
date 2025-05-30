@@ -1,14 +1,19 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
+import Link from 'next/link';
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [user, setUser] = useState<any>(null); // State to hold user information
+  const [user, setUser] = useState<any>(null);
   const router = useRouter();
+  const pathname = usePathname();
   const supabase = createClient();
+  const isHome = pathname === '/';
+
+  const isProfilePage = pathname === '/profile';
 
   // Fetch user session on component mount
   useEffect(() => {
@@ -44,77 +49,139 @@ export default function Header() {
     setIsMobileMenuOpen(false);
   };
 
+  const getFullPath = (anchor: string) => {
+    return isHome ? anchor : `/${anchor}`;
+  };
+
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 border-b border-gray-700 bg-[#333]">
-      <section className="max-w-screen-xl mx-auto flex items-center justify-between px-4 py-2 md:px-8 lg:px-16 lg:py-2">
-        <a href="/" className="logo">
-          {/* Update image source for Next.js public folder */}
-          <img src="/logo.png" alt="logo" className="h-16 w-auto block"/>
-        </a>
+    <header className="fixed w-full top-0 left-0 z-50 transition-all duration-300 ease-in-out backdrop-blur-md bg-[#171313]/80 border-b border-[#FF4B6B]/10">
+      <nav className="container mx-auto px-2 py-2">
+        <div className="flex items-center max-w-7xl mx-auto">
+          {/* Left Side - Logo */}
+          <div className="w-1/4 flex-shrink-0 pl-8">
+            <Link href="/" className="logo">
+              <img src="/logo.png" alt="logo" className="h-14 w-auto block"/>
+            </Link>
+          </div>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center">
-          <a href="/" className="mx-4 text-lg text-white hover:text-[#d3ad7f] hover:border-b hover:border-[#d3ad7f] hover:pb-1 hover:text-xl transition-all duration-200 ease-linear">Home</a>
-          <a href="/#about" className="mx-4 text-lg text-white hover:text-[#d3ad7f] hover:border-b hover:border-[#d3ad7f] hover:pb-1 hover:text-xl transition-all duration-200 ease-linear">Sobre</a>
-          <a href="/services" className="mx-4 text-lg text-white hover:text-[#d3ad7f] hover:border-b hover:border-[#d3ad7f] hover:pb-1 hover:text-xl transition-all duration-200 ease-linear">Serviços</a>
-          <a href="/#doubts" className="mx-4 text-lg text-white hover:text-[#d3ad7f] hover:border-b hover:border-[#d3ad7f] hover:pb-1 hover:text-xl transition-all duration-200 ease-linear">Dúvidas</a>
-          <a href="/#reviews" className="mx-4 text-lg text-white hover:text-[#d3ad7f] hover:border-b hover:border-[#d3ad7f] hover:pb-1 hover:text-xl transition-all duration-200 ease-linear">Avaliações</a>
-          {user ? (
-            <>
-              <a href="/profile" className="mx-4 text-lg text-white hover:text-[#d3ad7f] hover:border-b hover:border-[#d3ad7f] hover:pb-1 hover:text-xl transition-all duration-200 ease-linear">Perfil</a>
-              <button onClick={handleLogout} className="mx-4 text-lg text-white hover:text-[#d3ad7f] hover:border-b hover:border-[#d3ad7f] hover:pb-1 hover:text-xl transition-all duration-200 ease-linear bg-transparent border-none cursor-pointer p-0">
-                Logout
-              </button>
-            </>
-          ) : (
-            <a href="/login" className="mx-4 text-lg text-white hover:text-[#d3ad7f] hover:border-b hover:border-[#d3ad7f] hover:pb-1 hover:text-xl transition-all duration-200 ease-linear">Login</a>
-          )}
-        </nav>
+          {/* Center - Navigation Links */}
+          <div className="w-2/4 flex justify-center">
+            <div className="hidden md:flex items-center justify-center space-x-4">
+              <Link href={getFullPath('/')} className="text-white hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r from-[#FF4B6B] via-[#8B31FF] to-[#31A8FF] transition-all duration-300 relative group">
+                Home
+                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-[#FF4B6B] via-[#8B31FF] to-[#31A8FF] transition-all duration-300 group-hover:w-full"></span>
+              </Link>
+              <Link href={getFullPath('#about')} className="text-white hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r from-[#FF4B6B] via-[#8B31FF] to-[#31A8FF] transition-all duration-300 relative group">
+                Sobre
+                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-[#FF4B6B] via-[#8B31FF] to-[#31A8FF] transition-all duration-300 group-hover:w-full"></span>
+              </Link>
+              <Link href={getFullPath('#services')} className="text-white hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r from-[#FF4B6B] via-[#8B31FF] to-[#31A8FF] transition-all duration-300 relative group">
+                Serviços
+                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-[#FF4B6B] via-[#8B31FF] to-[#31A8FF] transition-all duration-300 group-hover:w-full"></span>
+              </Link>
+              <Link href="/gamers" className="text-white hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r from-[#FF4B6B] via-[#8B31FF] to-[#31A8FF] transition-all duration-300 relative group">
+                Gamers
+                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-[#FF4B6B] via-[#8B31FF] to-[#31A8FF] transition-all duration-300 group-hover:w-full"></span>
+              </Link>
+              <Link href={getFullPath('#doubts')} className="text-white hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r from-[#FF4B6B] via-[#8B31FF] to-[#31A8FF] transition-all duration-300 relative group">
+                Dúvidas
+                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-[#FF4B6B] via-[#8B31FF] to-[#31A8FF] transition-all duration-300 group-hover:w-full"></span>
+              </Link>
+              <Link href="/blog" className="text-white hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r from-[#FF4B6B] via-[#8B31FF] to-[#31A8FF] transition-all duration-300 relative group">
+                Blog
+                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-[#FF4B6B] via-[#8B31FF] to-[#31A8FF] transition-all duration-300 group-hover:w-full"></span>
+              </Link>
+              {!isProfilePage && (
+                <Link href={getFullPath('/reviews')} className="text-white hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r from-[#FF4B6B] via-[#8B31FF] to-[#31A8FF] transition-all duration-300 relative group">
+                  Avaliações
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-[#FF4B6B] via-[#8B31FF] to-[#31A8FF] transition-all duration-300 group-hover:w-full"></span>
+                </Link>
+              )}
+            </div>
+          </div>
 
-        {/* Icons and Mobile Menu Toggle */}
-        <div className="flex items-center">
-          {/* Mobile Menu Toggle Button (Hamburger Icon) */}
-          <button
-            className="md:hidden text-white text-2xl focus:outline-none mr-4"
-            onClick={toggleMobileMenu}
-            aria-label="Toggle Mobile Menu"
-          >
-            <i className={isMobileMenuOpen ? "fas fa-times" : "fas fa-bars"}></i>
-          </button>
+          {/* Right Side - Icons and Login */}
+          <div className="w-1/4 flex justify-end items-center gap-4 pr-8">
+            {/* Social Media Icons */}
+            <div className="hidden md:flex items-center gap-2">
+              <Link href="#" className="text-white hover:text-[#FF4B6B] transition-all duration-300">
+                <i className="fab fa-instagram text-xl"></i>
+              </Link>
+              <Link href="#" className="text-white hover:text-[#FF4B6B] transition-all duration-300">
+                <i className="fab fa-facebook text-xl"></i>
+              </Link>
+              <Link 
+                href="https://wa.me/5511996716235?text=Olá%20VOLTRIS%2C%20preciso%20de%20atendimento!" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="text-white hover:text-[#FF4B6B] transition-all duration-300"
+              >
+                <i className="fab fa-whatsapp text-xl"></i>
+              </Link>
+            </div>
 
-          {/* Shopping Cart Icon */}
-          <img width={30} height={30} src="https://img.icons8.com/?size=100&id=7695&format=png&color=ffffff" alt="shopping-cart--v1" className="ml-4 cursor-pointer transition-all duration-200 ease-linear hover:w-10 hover:h-10" />
+            {/* Profile and Login/Logout Buttons */}
+            <div className="flex items-center gap-4">
+              {user && (
+                <Link 
+                  href="/profile"
+                  className="flex items-center gap-2 px-4 py-2 text-white hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r from-[#FF4B6B] via-[#8B31FF] to-[#31A8FF] transition-all duration-300"
+                >
+                  <i className="fas fa-user-circle text-xl"></i>
+                  <span className="hidden md:inline">Perfil</span>
+                </Link>
+              )}
 
-          {/* Search Icon */}
-          <img width={30} height={30} src="https://img.icons8.com/?size=100&id=16733&format=png&color=60B15C" alt="search--v1" className="ml-4 cursor-pointer transition-all duration-200 ease-linear hover:w-10 hover:h-10" />
+              {user ? (
+                <button 
+                  onClick={handleLogout}
+                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#FF4B6B] via-[#8B31FF] to-[#31A8FF] text-white rounded-lg hover:shadow-[0_0_20px_rgba(139,49,255,0.3)] transition-all duration-300 ease-out hover:scale-105"
+                >
+                  <i className="fas fa-sign-out-alt text-xl"></i>
+                  <span className="hidden md:inline">Logout</span>
+                </button>
+              ) : (
+                <Link 
+                  href="/login"
+                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#FF4B6B] via-[#8B31FF] to-[#31A8FF] text-white rounded-lg hover:shadow-[0_0_20px_rgba(139,49,255,0.3)] transition-all duration-300 ease-out hover:scale-105"
+                >
+                  <i className="fas fa-user text-xl"></i>
+                  <span className="hidden md:inline">Login</span>
+                </Link>
+              )}
+            </div>
+
+            {/* Mobile Menu Button */}
+            <button className="md:hidden text-white focus:outline-none" onClick={toggleMobileMenu}>
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {isMobileMenuOpen ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                )}
+              </svg>
+            </button>
+          </div>
         </div>
-      </section>
 
-      {/* Mobile Menu */}
-      <div
-        className={`fixed top-0 left-0 w-64 h-full bg-[#333] p-6 transform ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 ease-in-out md:hidden`}
-      >
-        <div className="flex justify-end mb-8">
+        {/* Mobile Menu */}
+        <div className={`md:hidden transition-all duration-300 ease-in-out ${isMobileMenuOpen ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0 pointer-events-none'}`}>
+          <div className="pt-4 pb-3 space-y-3">
+            <Link href={getFullPath('/')} className="block text-white hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r from-[#FF4B6B] via-[#8B31FF] to-[#31A8FF] transition-all duration-300">Home</Link>
+            <Link href={getFullPath('#about')} className="block text-white hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r from-[#FF4B6B] via-[#8B31FF] to-[#31A8FF] transition-all duration-300">Sobre</Link>
+            <Link href={getFullPath('#services')} className="block text-white hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r from-[#FF4B6B] via-[#8B31FF] to-[#31A8FF] transition-all duration-300">Serviços</Link>
+            <Link href="/gamers" className="block text-white hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r from-[#FF4B6B] via-[#8B31FF] to-[#31A8FF] transition-all duration-300">Gamers</Link>
+            <Link href={getFullPath('#doubts')} className="block text-white hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r from-[#FF4B6B] via-[#8B31FF] to-[#31A8FF] transition-all duration-300">Dúvidas</Link>
+            <Link href="/blog" className="block text-white hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r from-[#FF4B6B] via-[#8B31FF] to-[#31A8FF] transition-all duration-300">Blog</Link>
+            {!isProfilePage && (
+              <Link href={getFullPath('/reviews')} className="block text-white hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r from-[#FF4B6B] via-[#8B31FF] to-[#31A8FF] transition-all duration-300">Avaliações</Link>
+            )}
+            {user && (
+              <Link href="/profile" className="block text-white hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r from-[#FF4B6B] via-[#8B31FF] to-[#31A8FF] transition-all duration-300">Perfil</Link>
+            )}
+          </div>
         </div>
-        <nav className="flex flex-col gap-4">
-          <a href="/" className="text-lg text-white hover:text-[#d3ad7f] transition-colors duration-200 ease-linear" onClick={toggleMobileMenu}>Home</a>
-          <a href="/#about" className="text-lg text-white hover:text-[#d3ad7f] transition-colors duration-200 ease-linear" onClick={toggleMobileMenu}>Sobre</a>
-          <a href="/services" className="text-lg text-white hover:text-[#d3ad7f] transition-colors duration-200 ease-linear" onClick={toggleMobileMenu}>Serviços</a>
-          <a href="/#doubts" className="text-lg text-white hover:text-[#d3ad7f] transition-colors duration-200 ease-linear" onClick={toggleMobileMenu}>Dúvidas</a>
-          <a href="/#reviews" className="text-lg text-white hover:text-[#d3ad7f] transition-colors duration-200 ease-linear" onClick={toggleMobileMenu}>Avaliações</a>
-          {user ? (
-            <>
-              <a href="/profile" className="text-lg text-white hover:text-[#d3ad7f] transition-colors duration-200 ease-linear" onClick={toggleMobileMenu}>Perfil</a>
-              <button onClick={handleLogout} className="text-lg text-white hover:text-[#d3ad7f] transition-colors duration-200 ease-linear bg-transparent border-none cursor-pointer p-0 text-left">
-                Logout
-              </button>
-            </>
-          ) : (
-             <a href="/login" className="text-lg text-white hover:text-[#d3ad7f] transition-colors duration-200 ease-linear" onClick={toggleMobileMenu}>Login</a>
-          )}
-        </nav>
-      </div>
-
+      </nav>
     </header>
   );
 } 

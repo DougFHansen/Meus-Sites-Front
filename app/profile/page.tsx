@@ -1,170 +1,157 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
-// Define a type for service requests for better type safety
-interface ServiceRequest {
+type Order = {
   id: string;
   created_at: string;
-  status: 'pending' | 'scheduled' | 'completed' | 'cancelled';
-  requested_services: { name: string; price: number; }[];
-  scheduling_type: string;
-  requested_datetime: string | null;
-  scheduled_datetime: string | null;
-  admin_notes: string | null;
-  final_price: number | null;
-}
+  status: string;
+  total: number;
+  items: any[];
+};
 
 export default function ProfilePage() {
   const [user, setUser] = useState<any>(null);
-  const [serviceRequests, setServiceRequests] = useState<ServiceRequest[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
   const router = useRouter();
   const supabase = createClient();
 
   useEffect(() => {
-    const fetchData = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
+    checkUser();
+  }, []);
 
+  const checkUser = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        // If no user is logged in, redirect to login page
         router.push('/login');
         return;
       }
-
-      // Fetch service requests for the logged-in user
-      const { data: requests, error: fetchError } = await supabase
-        .from('service_requests')
-        .select('*') // Select all columns
-        .eq('user_id', user.id) // Filter by the logged-in user's ID
-        .order('created_at', { ascending: false }); // Order by creation date
-
+      setUser(user);
+      await fetchOrders(user.id);
+    } catch (error) {
+      console.error('Error checking user:', error);
+    } finally {
       setLoading(false);
+    }
+  };
 
-      if (fetchError) {
-        console.error('Error fetching service requests:', fetchError);
-        setError('Ocorreu um erro ao carregar suas solicitações de serviço.');
-        setServiceRequests([]); // Ensure the list is empty on error
-      } else {
-        setServiceRequests(requests || []); // Set the fetched requests
-      }
-    };
+  const fetchOrders = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('orders')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
 
-    fetchData();
-
-     // Optional: Listen for auth state changes
-    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-        // If user logs out from another tab, redirect from profile page
-        if (!session?.user) {
-             router.push('/login');
-        }
-    });
-
-    return () => {
-      authListener.subscription.unsubscribe();
-    };
-
-  }, [supabase.auth, router]); // Depend on supabase.auth and router
+      if (error) throw error;
+      setOrders(data || []);
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+    }
+  };
 
   if (loading) {
     return (
-        <>
-            <Header />
-             {/* Adjust padding top to match header height */}
-            <div className="pt-16 sm:pt-20 bg-[#19325b] min-h-screen flex items-center justify-center">
-                <p className="text-white">Carregando solicitações...</p>
-            </div>
-            <Footer />
-        </>
+      <>
+        <Header />
+        <div className="min-h-screen bg-[#171313] pt-24 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#FF4B6B]"></div>
+        </div>
+        <Footer />
+      </>
     );
   }
-
-  if (error) {
-       return (
-        <>
-            <Header />
-             {/* Adjust padding top to match header height */}
-            <div className="pt-16 sm:pt-20 bg-[#19325b] min-h-screen flex items-center justify-center">
-                <p className="text-red-500">Erro: {error}</p>
-            </div>
-            <Footer />
-        </>
-    );
-  }
-
-    // If user is null after loading, it means the redirect to login is happening
-    if (!user) {
-        return null; // Or a loading spinner/message while redirecting
-    }
 
   return (
     <>
       <Header />
-      {/* Main Content Wrapper for Padding below Header */}
-       {/* Adjust padding top to match header height */}
-      <div className="pt-16 sm:pt-20 bg-[#19325b] min-h-screen py-8 px-4">
-         <div className="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-lg">
-            <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Minhas Solicitações de Serviço</h2>
+      <div className="min-h-screen bg-[#171313] pt-24">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            {/* Profile Header */}
+            <div className="bg-[#171313] rounded-lg shadow-lg p-6 mb-8 border border-[#8B31FF]/10">
+              <h1 className="text-3xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-[#FF4B6B] via-[#8B31FF] to-[#31A8FF]">
+                Meu Perfil
+              </h1>
+              <div className="text-white">
+                <p className="mb-2">
+                  <span className="font-semibold">Email:</span> {user?.email}
+                </p>
+                <p className="mb-2">
+                  <span className="font-semibold">Membro desde:</span>{' '}
+                  {new Date(user?.created_at).toLocaleDateString('pt-BR')}
+                </p>
+              </div>
+            </div>
 
-            {serviceRequests.length === 0 ? (
-                <p className="text-center text-gray-600">Você ainda não solicitou nenhum serviço.</p>
-            ) : (
+            {/* Orders Section */}
+            <div className="bg-[#171313] rounded-lg shadow-lg p-6 border border-[#8B31FF]/10">
+              <h2 className="text-2xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-[#FF4B6B] via-[#8B31FF] to-[#31A8FF]">
+                Meus Pedidos
+              </h2>
+
+              {orders.length > 0 ? (
                 <div className="space-y-6">
-                    {serviceRequests.map((request) => (
-                        <div key={request.id} className="border border-gray-300 rounded-md p-4 shadow-sm">
-                            <div className="flex justify-between items-center mb-3">
-                                <h3 className="text-lg font-semibold text-gray-800">Solicitação #{request.created_at.substring(0, 10)}</h3> {/* Simple display of date */}
-                                <span className={`px-3 py-1 rounded-full text-sm font-medium
-                                    ${request.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : ''}
-                                    ${request.status === 'scheduled' ? 'bg-blue-100 text-blue-800' : ''}
-                                    ${request.status === 'completed' ? 'bg-green-100 text-green-800' : ''}
-                                    ${request.status === 'cancelled' ? 'bg-red-100 text-red-800' : ''}
-                                `}>{request.status}</span>
-                            </div>
-                            <div className="mb-3">
-                                <p className="text-gray-700 font-medium mb-1">Serviços Solicitados:</p>
-                                <ul className="list-disc list-inside text-gray-600 text-sm">
-                                    {request.requested_services.map((service, index) => (
-                                        <li key={index}>{service.name} - R${service.price.toFixed(2).replace('.', ',')}</li>
-                                    ))}
-                                </ul>
-                            </div>
-                            <div className="text-gray-700 text-sm mb-2">
-                                <span className="font-medium">Atendimento:</span> {request.scheduling_type === 'now' ? 'Na Hora' : 'Agendado'}
-                            </div>
-                             {request.requested_datetime && (
-                                <div className="text-gray-700 text-sm mb-2">
-                                     <span className="font-medium">Data/Hora Solicitada:</span> {new Date(request.requested_datetime).toLocaleString('pt-BR')}
-                                </div>
-                             )}
-                              {request.scheduled_datetime && (
-                                <div className="text-gray-700 text-sm mb-2">
-                                     <span className="font-medium">Data/Hora Agendada:</span> {new Date(request.scheduled_datetime).toLocaleString('pt-BR')}
-                                </div>
-                             )}
-                             {request.admin_notes && (
-                                 <div className="text-gray-700 text-sm mb-2">
-                                     <span className="font-medium">Notas do Atendimento:</span> {request.admin_notes}
-                                 </div>
-                             )}
-                             {request.final_price !== null && ( // Check specifically for null as 0 is a valid price
-                                 <div className="text-gray-700 text-sm">
-                                     <span className="font-medium">Preço Final:</span> R${request.final_price.toFixed(2).replace('.', ',')}
-                                 </div>
-                             )}
-                            {/* Add action buttons here later if needed (e.g., Cancel) */}
+                  {orders.map((order) => (
+                    <div
+                      key={order.id}
+                      className="bg-[#2a2a2e] rounded-lg p-4 border border-[#8B31FF]/10"
+                    >
+                      <div className="flex justify-between items-start mb-4">
+                        <div>
+                          <p className="text-white font-semibold">
+                            Pedido #{order.id}
+                          </p>
+                          <p className="text-gray-400 text-sm">
+                            {new Date(order.created_at).toLocaleDateString('pt-BR')}
+                          </p>
                         </div>
-                    ))}
+                        <div className="text-right">
+                          <p className="text-white font-semibold">
+                            R$ {order.total.toFixed(2)}
+                          </p>
+                          <span className={`text-sm px-2 py-1 rounded ${
+                            order.status === 'completed'
+                              ? 'bg-green-500/20 text-green-400'
+                              : order.status === 'pending'
+                              ? 'bg-yellow-500/20 text-yellow-400'
+                              : 'bg-blue-500/20 text-blue-400'
+                          }`}>
+                            {order.status === 'completed'
+                              ? 'Concluído'
+                              : order.status === 'pending'
+                              ? 'Pendente'
+                              : 'Em Processamento'}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="border-t border-[#8B31FF]/10 pt-4">
+                        <h4 className="text-white font-semibold mb-2">Itens do Pedido:</h4>
+                        <ul className="space-y-2">
+                          {order.items.map((item: any, index: number) => (
+                            <li key={index} className="text-gray-300">
+                              {item.quantity}x {item.name} - R$ {(item.price * item.quantity).toFixed(2)}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-            )}
-         </div>
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-gray-400">Você ainda não tem pedidos.</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
       <Footer />
     </>
