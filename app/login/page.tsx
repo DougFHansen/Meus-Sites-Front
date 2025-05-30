@@ -49,20 +49,28 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      // Primeiro, criar o usuário
+      // Validate required fields
+      if (!email || !password || !fullName || !phone) {
+        throw new Error('Por favor, preencha todos os campos obrigatórios');
+      }
+
+      // Prepare user metadata
+      const userMetadata = {
+        login,
+        full_name: fullName,
+        phone,
+        ...(city && { city }),
+        ...(neighborhood && { neighborhood }),
+        ...(state && { state }),
+        ...(cep && { cep })
+      };
+
+      // First, create the user
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          data: {
-            login,
-            full_name: fullName,
-            phone,
-            city,
-            neighborhood,
-            state,
-            cep
-          }
+          data: userMetadata
         }
       });
 
@@ -74,22 +82,24 @@ export default function LoginPage() {
         throw new Error('Erro ao criar usuário');
       }
 
-      // Depois, inserir os dados adicionais na tabela de profiles
+      // Then, insert additional data into the profiles table
+      const profileData: Record<string, any> = {
+        id: authData.user.id,
+        login,
+        full_name: fullName,
+        phone,
+        updated_at: new Date().toISOString()
+      };
+
+      // Only include optional fields if they have values
+      if (city) profileData.city = city;
+      if (neighborhood) profileData.neighborhood = neighborhood;
+      if (state) profileData.state = state;
+      if (cep) profileData.cep = cep;
+
       const { error: profileError } = await supabase
         .from('profiles')
-        .upsert([
-          {
-            id: authData.user.id,
-            login,
-            full_name: fullName,
-            phone,
-            city,
-            neighborhood,
-            state,
-            cep,
-            updated_at: new Date().toISOString()
-          }
-        ], {
+        .upsert(profileData, {
           onConflict: 'id'
         });
 
